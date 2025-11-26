@@ -40,7 +40,8 @@ This is a TypeScript SDK/library for secure popup-based authentication for apps 
 - Full TypeScript support with exported types
 
 ## API Exports
-- `loginWithPopup(options)` - Opens popup for authentication, auto-stores token
+- `loginWithPopup(options)` - Opens Account Chooser popup (default login method)
+- `loginWithAuthorization(options)` - Opens direct Authorization popup
 - `getCurrentUser(options?)` - Fetches user info using Bearer token
 - `logout(options?)` - Clears tokens locally and optionally on server
 - `TokenManager` - Direct access to token storage/retrieval
@@ -60,6 +61,11 @@ This is a TypeScript SDK/library for secure popup-based authentication for apps 
 **No Runtime Dependencies** - This is a zero-dependency library.
 
 ## Recent Changes
+- **2025-11-26**: Split login methods
+  - `loginWithPopup` now defaults to Account Chooser flow
+  - Added `loginWithAuthorization` for direct authorization flow
+  - Removed `useChooser` option from LoginOptions (use separate functions instead)
+
 - **2025-11-26**: Security & optimization improvements
   - Added TokenManager for secure token storage with sessionStorage
   - Updated getCurrentUser to accept Bearer token via options or TokenManager

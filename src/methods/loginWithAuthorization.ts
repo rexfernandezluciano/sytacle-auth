@@ -4,7 +4,7 @@ import { SytacleAuth } from "../provider/SytacleAuth";
 import { TokenManager } from "../auth/TokenManager";
 import type { LoginResult, LoginOptions } from "../types";
 
-export async function loginWithPopup({
+export async function loginWithAuthorization({
     clientId,
     scopes = ["profile"],
     timeout = 60000
@@ -12,7 +12,7 @@ export async function loginWithPopup({
     const auth = new SytacleAuth({
         id: clientId,
         scopes,
-        chooser: true,
+        chooser: false,
         signInFlow: "popup"
     });
 

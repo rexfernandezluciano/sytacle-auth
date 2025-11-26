@@ -23,7 +23,6 @@ export interface LoginOptions {
     clientId: string;
     scopes?: string[];
     timeout?: number;
-    useChooser?: boolean;
 }
 
 export interface GetCurrentUserOptions {

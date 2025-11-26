@@ -25,12 +25,21 @@ npm install @sytacle/auth
 
 ## Usage
 
-### Basic Authentication
+### Login Methods
+
+The SDK provides two login methods:
+
+| Method | Description | Use Case |
+|--------|-------------|----------|
+| `loginWithPopup` | Opens Account Chooser popup | Default - lets users pick from saved accounts |
+| `loginWithAuthorization` | Opens direct Authorization popup | Direct login without account selection |
+
+### Account Chooser (Default)
 
 ```ts
 import { loginWithPopup, getCurrentUser, logout } from "@sytacle/auth";
 
-// Trigger login flow
+// Opens Account Chooser - user can select from saved accounts
 const result = await loginWithPopup({
     clientId: "xzy123",
     scopes: ["profile", "email"]
@@ -52,6 +61,21 @@ console.log(currentUser.role.access); // e.g. ["view", "read"]
 
 // Logout user
 await logout();
+```
+
+### Direct Authorization
+
+```ts
+import { loginWithAuthorization } from "@sytacle/auth";
+
+// Opens direct Authorization page - skips account selection
+const result = await loginWithAuthorization({
+    clientId: "xzy123",
+    scopes: ["profile", "email"]
+});
+
+console.log(result.user);
+console.log(result.accessToken);
 ```
 
 ### Using Access Token Explicitly
@@ -90,14 +114,25 @@ TokenManager.clearToken();
 
 ### loginWithPopup(options)
 
-Opens a popup window for user authentication.
+Opens a popup window with Account Chooser for user authentication. Users can select from previously saved accounts.
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
 | clientId | string | required | Your app's OAuth client ID |
 | scopes | string[] | ["profile"] | Requested permission scopes |
 | timeout | number | 60000 | Timeout in milliseconds |
-| useChooser | boolean | false | Use account chooser UI |
+
+Returns: `Promise<LoginResult>`
+
+### loginWithAuthorization(options)
+
+Opens a popup window with direct Authorization page. Skips the account chooser step.
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| clientId | string | required | Your app's OAuth client ID |
+| scopes | string[] | ["profile"] | Requested permission scopes |
+| timeout | number | 60000 | Timeout in milliseconds |
 
 Returns: `Promise<LoginResult>`
 
@@ -149,7 +184,6 @@ interface LoginOptions {
     clientId: string;
     scopes?: string[];
     timeout?: number;
-    useChooser?: boolean;
 }
 ```
 
@@ -161,12 +195,21 @@ You can also load the SDK directly in the browser via CDN:
 
 ```html
 <script type="module">
-    import { loginWithPopup, getCurrentUser, logout } from "https://cdn.jsdelivr.net/npm/@sytacle/auth@latest/dist/v1/auth.min.js";
+    import { 
+        loginWithPopup, 
+        loginWithAuthorization,
+        getCurrentUser, 
+        logout 
+    } from "https://cdn.jsdelivr.net/npm/@sytacle/auth@latest/dist/v1/auth.min.js";
 
+    // Account Chooser (default)
     loginWithPopup({ clientId: "xzy123" }).then(result => {
         console.log(result.user);
-        // Token is automatically stored, subsequent calls work:
-        getCurrentUser().then(user => console.log(user));
+    });
+
+    // Or direct Authorization
+    loginWithAuthorization({ clientId: "xzy123" }).then(result => {
+        console.log(result.user);
     });
 </script>
 ```
