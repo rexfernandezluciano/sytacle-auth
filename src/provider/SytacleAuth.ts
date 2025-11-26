@@ -63,4 +63,12 @@ export class SytacleAuth {
     getOrigin(): string {
         return SytacleAuth.ORIGIN;
     }
+
+    getState(): string {
+        return this.#state;
+    }
+
+    verifyState(state: string): boolean {
+        return this.#state === state;
+    }
 }

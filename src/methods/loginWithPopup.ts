@@ -41,6 +41,13 @@ export async function loginWithPopup({
                 window.removeEventListener("message", listener);
                 popup.close();
 
+                const responseState = event.data.state;
+                if (!auth.verifyState(responseState)) {
+                    return reject(
+                        new Error("State verification failed: possible CSRF attack")
+                    );
+                }
+
                 const accessToken = event.data.token;
                 const user = event.data.user;
 
