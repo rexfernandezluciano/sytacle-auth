@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sytacle Auth SDK Test</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 8px;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 32px;
+        }
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .card h2 {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 16px;
+        }
+        .form-group {
+            margin-bottom: 16px;
+        }
+        label {
+            display: block;
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 6px;
+        }
+        input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        input:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        button:hover {
+            opacity: 0.9;
+        }
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        .status {
+            padding: 12px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+        .status.authenticated {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status.unauthenticated {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .user-info {
+            display: none;
+        }
+        .user-info.show {
+            display: block;
+        }
+        .user-card {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+        .user-avatar {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: #ddd;
+            object-fit: cover;
+        }
+        .user-details h3 {
+            font-size: 18px;
+            color: #333;
+        }
+        .user-details p {
+            font-size: 14px;
+            color: #666;
+        }
+        .log-container {
+            background: #1e1e1e;
+            border-radius: 8px;
+            padding: 16px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .log-entry {
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 12px;
+            line-height: 1.6;
+            color: #d4d4d4;
+        }
+        .log-entry.info { color: #4fc3f7; }
+        .log-entry.success { color: #81c784; }
+        .log-entry.error { color: #e57373; }
+        .log-entry.warn { color: #ffb74d; }
+        .token-display {
+            font-family: monospace;
+            font-size: 12px;
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 6px;
+            word-break: break-all;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Sytacle Auth SDK</h1>
+        <p class="subtitle">Test Implementation</p>
+
+        <div class="card">
+            <h2>Configuration</h2>
+            <div class="form-group">
+                <label for="clientId">Client ID</label>
+                <input type="text" id="clientId" placeholder="Enter your client ID" value="test-client">
+            </div>
+            <div class="form-group">
+                <label for="scopes">Scopes (comma-separated)</label>
+                <input type="text" id="scopes" placeholder="profile, email" value="profile, email">
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Authentication</h2>
+            <div id="authStatus" class="status unauthenticated">
+                Not authenticated
+            </div>
+            <div class="btn-group">
+                <button id="btnLoginPopup" class="btn-primary">Login with Account Chooser</button>
+                <button id="btnLoginAuth" class="btn-secondary">Login with Authorization</button>
+                <button id="btnGetUser" class="btn-success">Get Current User</button>
+                <button id="btnLogout" class="btn-danger">Logout</button>
+            </div>
+        </div>
+
+        <div id="userInfo" class="card user-info">
+            <h2>User Information</h2>
+            <div class="user-card">
+                <img id="userAvatar" class="user-avatar" src="" alt="Avatar">
+                <div class="user-details">
+                    <h3 id="userName">-</h3>
+                    <p id="userEmail">-</p>
+                    <p id="userUsername">@-</p>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Access Token</label>
+                <div id="tokenDisplay" class="token-display">-</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Console Log</h2>
+            <div id="logContainer" class="log-container">
+                <div class="log-entry info">[Ready] SDK test page loaded</div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { 
+            loginWithPopup, 
+            loginWithAuthorization, 
+            getCurrentUser, 
+            logout,
+            TokenManager 
+        } from '../dist/v1/auth.min.js';
+
+        const logContainer = document.getElementById('logContainer');
+        const authStatus = document.getElementById('authStatus');
+        const userInfo = document.getElementById('userInfo');
+
+        function log(message, type = 'info') {
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logContainer.appendChild(entry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        function updateAuthStatus(authenticated) {
+            if (authenticated) {
+                authStatus.className = 'status authenticated';
+                authStatus.textContent = 'Authenticated';
+            } else {
+                authStatus.className = 'status unauthenticated';
+                authStatus.textContent = 'Not authenticated';
+                userInfo.classList.remove('show');
+            }
+        }
+
+        function displayUser(user, token) {
+            document.getElementById('userName').textContent = user.name || 'Unknown';
+            document.getElementById('userEmail').textContent = user.email || 'No email';
+            document.getElementById('userUsername').textContent = `@${user.username || 'unknown'}`;
+            document.getElementById('userAvatar').src = user.avatar || '';
+            document.getElementById('tokenDisplay').textContent = token || TokenManager.getToken() || 'No token';
+            userInfo.classList.add('show');
+        }
+
+        function getConfig() {
+            const clientId = document.getElementById('clientId').value.trim();
+            const scopesInput = document.getElementById('scopes').value.trim();
+            const scopes = scopesInput.split(',').map(s => s.trim()).filter(Boolean);
+            return { clientId, scopes };
+        }
+
+        // Check initial auth state
+        if (TokenManager.isAuthenticated()) {
+            log('Found existing token in storage', 'info');
+            updateAuthStatus(true);
+        }
+
+        // Login with Account Chooser
+        document.getElementById('btnLoginPopup').addEventListener('click', async () => {
+            const { clientId, scopes } = getConfig();
+            log(`Starting Account Chooser login (clientId: ${clientId})...`, 'info');
+            
+            try {
+                const result = await loginWithPopup({ clientId, scopes });
+                log(`Login successful! User: ${result.user.name}`, 'success');
+                updateAuthStatus(true);
+                displayUser(result.user, result.accessToken);
+            } catch (error) {
+                log(`Login failed: ${error.message}`, 'error');
+            }
+        });
+
+        // Login with Authorization
+        document.getElementById('btnLoginAuth').addEventListener('click', async () => {
+            const { clientId, scopes } = getConfig();
+            log(`Starting Authorization login (clientId: ${clientId})...`, 'info');
+            
+            try {
+                const result = await loginWithAuthorization({ clientId, scopes });
+                log(`Login successful! User: ${result.user.name}`, 'success');
+                updateAuthStatus(true);
+                displayUser(result.user, result.accessToken);
+            } catch (error) {
+                log(`Login failed: ${error.message}`, 'error');
+            }
+        });
+
+        // Get Current User
+        document.getElementById('btnGetUser').addEventListener('click', async () => {
+            log('Fetching current user...', 'info');
+            
+            try {
+                const user = await getCurrentUser();
+                if (user) {
+                    log(`User fetched: ${user.name} (${user.email || 'no email'})`, 'success');
+                    updateAuthStatus(true);
+                    displayUser(user, null);
+                } else {
+                    log('No user found (not authenticated or token invalid)', 'warn');
+                    updateAuthStatus(false);
+                }
+            } catch (error) {
+                log(`Failed to get user: ${error.message}`, 'error');
+            }
+        });
+
+        // Logout
+        document.getElementById('btnLogout').addEventListener('click', async () => {
+            log('Logging out...', 'info');
+            
+            try {
+                await logout({ revokeToken: true });
+                log('Logged out successfully', 'success');
+                updateAuthStatus(false);
+            } catch (error) {
+                log(`Logout error: ${error.message}`, 'error');
+            }
+        });
+
+        log('SDK imported successfully', 'success');
+    </script>
+</body>
+</html>
