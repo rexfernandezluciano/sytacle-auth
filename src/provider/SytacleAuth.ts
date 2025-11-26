@@ -9,7 +9,7 @@ export class SytacleAuth {
     #scopes: string[];
     #redirectUri: string;
     #state: string;
-    #useChooser: boolean;
+    #chooser: boolean;
     #signInFlow: string;
 
     constructor({
@@ -29,12 +29,12 @@ export class SytacleAuth {
         this.#scopes = scopes;
         this.#redirectUri = url;
         this.#state = crypto.randomUUID();
-        this.#useChooser = chooser;
+        this.#chooser = chooser;
         this.#signInFlow = signInFlow;
     }
 
     getLoginUrl(): string {
-        return this.#useChooser ? this.getChooserUrl() : this.getAuthUrl();
+        return this.#chooser ? this.getChooserUrl() : this.getAuthUrl();
     }
 
     getAuthUrl(): string {
