@@ -51,6 +51,9 @@ This is a TypeScript SDK/library for secure popup-based authentication for apps 
 ## Scripts
 - `npm run build` - Full build (webpack + tsc)
 - `npm run dev` - Watch mode for development
+- `npm run test` - Run all unit tests
+- `npm run test:unit` - Run SytacleAuth tests only
+- `npm run test:token` - Run TokenManager tests only
 
 ## Dependencies
 **Dev Dependencies Only**:
