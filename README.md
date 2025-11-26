@@ -1,8 +1,21 @@
 <!-- @format -->
 
-@sytacle/auth
+# @sytacle/auth
 
 Secure popup-based authentication for apps published through the Sytacle App Store.
+
+[![npm version](https://img.shields.io/npm/v/@sytacle/auth.svg)](https://www.npmjs.com/package/@sytacle/auth)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+## Features
+
+- Two login methods: Account Chooser & Direct Authorization
+- Automatic token management with sessionStorage
+- Token expiration handling
+- Server-side token revocation
+- Full TypeScript support
+- Zero runtime dependencies
+- CDN-ready browser bundle
 
 ---
 
@@ -23,44 +36,50 @@ npm install @sytacle/auth
 
 ---
 
-## Usage
-
-### Login Methods
-
-The SDK provides two login methods:
-
-| Method | Description | Use Case |
-|--------|-------------|----------|
-| `loginWithPopup` | Opens Account Chooser popup | Default - lets users pick from saved accounts |
-| `loginWithAuthorization` | Opens direct Authorization popup | Direct login without account selection |
-
-### Account Chooser (Default)
+## Quick Start
 
 ```ts
 import { loginWithPopup, getCurrentUser, logout } from "@sytacle/auth";
 
-// Opens Account Chooser - user can select from saved accounts
+// 1. Login (opens Account Chooser popup)
+const result = await loginWithPopup({
+    clientId: "your-client-id",
+    scopes: ["profile", "email"]
+});
+
+console.log("Welcome,", result.user.name);
+
+// 2. Get current user (token is automatically used)
+const user = await getCurrentUser();
+
+// 3. Logout
+await logout();
+```
+
+---
+
+## Login Methods
+
+The SDK provides two login methods:
+
+| Method | Flow | Description |
+|--------|------|-------------|
+| `loginWithPopup` | Account Chooser | Default - lets users pick from saved accounts |
+| `loginWithAuthorization` | Direct Authorization | Skips account selection, goes straight to login |
+
+### Account Chooser (Recommended)
+
+```ts
+import { loginWithPopup } from "@sytacle/auth";
+
 const result = await loginWithPopup({
     clientId: "xzy123",
     scopes: ["profile", "email"]
 });
 
-// Access token is automatically stored for subsequent API calls
-const token = result.accessToken;
-const user = result.user;
-
-// Fetch current session user (uses stored token automatically)
-const currentUser = await getCurrentUser();
-
-console.log(currentUser.name); // e.g. "Jane Doe"
-console.log(currentUser.avatar); // URL to avatar image
-console.log(currentUser.username); // e.g. "janedoe"
-console.log(currentUser.email); // e.g. "jane@example.com"
-console.log(currentUser.role.type); // e.g. "admin"
-console.log(currentUser.role.access); // e.g. ["view", "read"]
-
-// Logout user
-await logout();
+// Token is automatically stored for subsequent API calls
+console.log(result.user.name);
+console.log(result.accessToken);
 ```
 
 ### Direct Authorization
@@ -68,35 +87,47 @@ await logout();
 ```ts
 import { loginWithAuthorization } from "@sytacle/auth";
 
-// Opens direct Authorization page - skips account selection
 const result = await loginWithAuthorization({
     clientId: "xzy123",
     scopes: ["profile", "email"]
 });
 
 console.log(result.user);
-console.log(result.accessToken);
 ```
 
-### Using Access Token Explicitly
+---
 
-If you need to pass the token explicitly (e.g., for server-side validation):
+## Getting User Information
 
 ```ts
 import { getCurrentUser } from "@sytacle/auth";
 
-// Pass token explicitly
-const currentUser = await getCurrentUser({
-    accessToken: "your-access-token-here"
+// Uses stored token automatically
+const user = await getCurrentUser();
+
+if (user) {
+    console.log(user.name);      // "Jane Doe"
+    console.log(user.username);  // "janedoe"
+    console.log(user.email);     // "jane@example.com"
+    console.log(user.avatar);    // URL to avatar image
+    console.log(user.role?.type);   // "admin"
+    console.log(user.role?.access); // ["view", "read"]
+}
+
+// Or pass token explicitly
+const user = await getCurrentUser({
+    accessToken: "your-access-token"
 });
 ```
 
-### Token Management
+---
+
+## Token Management
 
 ```ts
 import { TokenManager } from "@sytacle/auth";
 
-// Check if user is authenticated
+// Check authentication state
 if (TokenManager.isAuthenticated()) {
     console.log("User is logged in");
 }
@@ -104,8 +135,22 @@ if (TokenManager.isAuthenticated()) {
 // Get the current access token
 const token = TokenManager.getToken();
 
-// Clear the token (logout)
+// Clear the token manually
 TokenManager.clearToken();
+```
+
+---
+
+## Logout
+
+```ts
+import { logout } from "@sytacle/auth";
+
+// Clear local tokens only
+await logout();
+
+// Clear local tokens AND revoke on server
+await logout({ revokeToken: true });
 ```
 
 ---
@@ -114,7 +159,7 @@ TokenManager.clearToken();
 
 ### loginWithPopup(options)
 
-Opens a popup window with Account Chooser for user authentication. Users can select from previously saved accounts.
+Opens a popup window with Account Chooser for user authentication.
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
@@ -126,7 +171,7 @@ Returns: `Promise<LoginResult>`
 
 ### loginWithAuthorization(options)
 
-Opens a popup window with direct Authorization page. Skips the account chooser step.
+Opens a popup window with direct Authorization page.
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
@@ -138,7 +183,7 @@ Returns: `Promise<LoginResult>`
 
 ### getCurrentUser(options?)
 
-Fetches the currently authenticated user's information.
+Fetches the currently authenticated user's information using Bearer token.
 
 | Option | Type | Description |
 |--------|------|-------------|
@@ -155,6 +200,17 @@ Logs out the current user and clears stored tokens.
 | revokeToken | boolean | false | If true, revokes the token on the server |
 
 Returns: `Promise<void>`
+
+### TokenManager
+
+Singleton for managing access tokens.
+
+| Method | Returns | Description |
+|--------|---------|-------------|
+| `getToken()` | `string \| null` | Get the current access token |
+| `setToken(token, expiresIn?)` | `void` | Store an access token |
+| `clearToken()` | `void` | Clear the stored token |
+| `isAuthenticated()` | `boolean` | Check if user has a valid token |
 
 ---
 
@@ -185,13 +241,17 @@ interface LoginOptions {
     scopes?: string[];
     timeout?: number;
 }
+
+interface GetCurrentUserOptions {
+    accessToken?: string;
+}
 ```
 
 ---
 
-## CDN Delivery
+## CDN Usage
 
-You can also load the SDK directly in the browser via CDN:
+Load the SDK directly in the browser:
 
 ```html
 <script type="module">
@@ -199,26 +259,50 @@ You can also load the SDK directly in the browser via CDN:
         loginWithPopup, 
         loginWithAuthorization,
         getCurrentUser, 
-        logout 
+        logout,
+        TokenManager
     } from "https://cdn.jsdelivr.net/npm/@sytacle/auth@latest/dist/v1/auth.min.js";
 
-    // Account Chooser (default)
-    loginWithPopup({ clientId: "xzy123" }).then(result => {
-        console.log(result.user);
-    });
+    // Account Chooser (recommended)
+    document.getElementById('loginBtn').onclick = async () => {
+        const result = await loginWithPopup({ clientId: "xzy123" });
+        console.log("Logged in as:", result.user.name);
+    };
 
-    // Or direct Authorization
-    loginWithAuthorization({ clientId: "xzy123" }).then(result => {
-        console.log(result.user);
-    });
+    // Check auth state on page load
+    if (TokenManager.isAuthenticated()) {
+        const user = await getCurrentUser();
+        console.log("Welcome back,", user.name);
+    }
 </script>
 ```
 
 ---
 
-## Security Notes
+## Security
 
-- Access tokens are stored in sessionStorage (cleared when browser tab closes)
-- Tokens are automatically cleared on 401 responses
-- Use `logout({ revokeToken: true })` to revoke tokens on the server
-- Always use HTTPS in production
+- **Session Storage**: Tokens are stored in sessionStorage and cleared when the browser tab closes
+- **Auto-cleanup**: Tokens are automatically cleared on 401 responses
+- **CSRF Protection**: State parameter included in OAuth flow
+- **Server Revocation**: Use `logout({ revokeToken: true })` to invalidate tokens on the server
+- **HTTPS Required**: Always use HTTPS in production
+
+---
+
+## Testing
+
+Run the test suite:
+
+```bash
+npm run test        # Run all tests
+npm run test:unit   # Run SytacleAuth tests only
+npm run test:token  # Run TokenManager tests only
+```
+
+Open `test/index.html` in a browser for interactive testing.
+
+---
+
+## License
+
+MIT
