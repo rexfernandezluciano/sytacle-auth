@@ -31,8 +31,9 @@ export async function getCurrentUser(
             }
             return null;
         }
-
-        const user: User = await res.json();
+        
+        const result = await res.json();
+        const user: User = result?.user;
         return user;
     } catch {
         return null;

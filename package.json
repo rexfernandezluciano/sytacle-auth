@@ -1,20 +1,19 @@
 {
     "name": "@sytacle/auth",
-    "version": "1.0.2",
+    "version": "1.0.5",
     "description": "Secure popup-based authentication for apps published through the Sytacle App Store.",
-    "main": "dist/index.cjs",
+    "main": "dist/index.js",
     "module": "dist/index.js",
     "types": "dist/index.d.ts",
+    "type": "nodenext",
     "exports": {
         ".": {
             "import": "./dist/index.js",
-            "require": "./dist/index.cjs",
+            "require": "./dist/index.js",
             "types": "./dist/index.d.ts"
         }
     },
-    "files": [
-        "dist"
-    ],
+    "files": ["dist"],
     "scripts": {
         "build": "webpack && tsc",
         "dev": "webpack --watch",
@@ -23,14 +22,14 @@
         "test:token": "npx ts-node test/tokenManager.test.ts"
     },
     "keywords": [
-        "auth",
+        "authentication",
         "sdk",
         "sytacle",
         "typescript",
         "esm",
         "cdn"
     ],
-    "author": "Rex @ Sytacle",
+    "author": "Rex Luciano",
     "license": "MIT",
     "publishConfig": {
         "access": "public"

@@ -1,0 +1,64 @@
+<!-- @format -->
+
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <title>Sytacle Auth Test</title>
+        <style>
+            body {
+                font-family: sans-serif;
+                padding: 2rem;
+            }
+            button {
+                padding: 0.5rem 1rem;
+                font-size: 1rem;
+            }
+            pre {
+                background: #f4f4f4;
+                padding: 1rem;
+                border-radius: 5px;
+            }
+        </style>
+		<script src="//cdn.jsdelivr.net/npm/eruda"></script>
+		<script>
+			eruda.init();
+		</script>
+    </head>
+    <body>
+        <h1>Sytacle Auth Test</h1>
+        <button id="login">Login with Sytacle</button>
+        <button id="check">Check Session</button>
+        <button id="logout">Logout</button>
+        <h2>User Info</h2>
+        <pre id="output">Not logged in</pre>
+
+        <script type="module">
+            import * as SytacleAuth from "../dist/sytacle-auth.browser.js";
+
+            document.addEventListener("DOMContentLoaded", () => {
+                document.getElementById("login").onclick = async () => {
+                    const user = await SytacleAuth.loginWithPopup({
+                        clientId: "studio",
+                        scopes: ["profile", "email"],
+                        useChooser: true
+                    });
+                    console.log("User:", user);
+                };
+
+                document.getElementById("check").onclick = async () => {
+                    const user = await SytacleAuth.getCurrentUser();
+                    console.log("Session:", user);
+                };
+
+                document.getElementById("logout").onclick = () => {
+                    SytacleAuth.logout({ redirectUri: window.location.href });
+                };
+            });
+        </script>
+
+        <button id="login">Login</button>
+        <button id="check">Check Session</button>
+        <button id="logout">Logout</button>
+    </body>
+</html>

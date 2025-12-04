@@ -4,6 +4,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.5] - 2025-12-04
+### Fixed
+- Bug fixes
+- Improved authentication
+
+## [1.0.4] - 2025-12-04
+### Fixed
+- Bug fixes
+
 ## [1.0.3] - 2025-11-26
 
 ### Added
@@ -45,19 +54,16 @@ All notable changes to this project will be documented in this file.
 
 ## [1.0.2] - 2025-11-26
 
-### Added
-- CookieManager to manage cookies between cross-domain
-
 ### Fixed
 - Bug fixes
 - Code optimization
 
-## [1.0.1] - 2025-11-26
+## [1.0.1] - 2025-10-06
 
 ### Fixed
 - Bug fixes
 
-## [1.0.0] - 2025-11-26
+## [1.0.0] - 2025-10-04
 
 ### Added
 - Initial release
